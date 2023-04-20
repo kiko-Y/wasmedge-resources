@@ -3,7 +3,7 @@
 wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应的解决方案
 
 <a href="https://github.com/sunface/rust-course">
-   <img src="https://github.com/kiko-Y/wasmedge-resources/tree/master/README.assets/ferris.gif" align="right" width="25%"/>
+   <img src="https://github.com/kiko-Y/wasmedge-resources/blob/master/README.assets/ferris.gif" align="right" width="25%"/>
 </a>
 
 ## 以下是一些常用网站的地址😄：
