@@ -2,7 +2,9 @@
 
 wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应的解决方案
 
-
+<a href="https://github.com/sunface/rust-course">
+   <img src="https://github.com/kiko-Y/wasmedge-resources/tree/master/README.assets/ferris.gif" align="right" width="25%"/>
+</a>
 
 ## 以下是一些常用网站的地址😄：
 
@@ -55,4 +57,3 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
 - WASI的Rust参考实现
   
   https://github.com/apepkuss/WasmEdge/blob/rust/feat-new-vm/bindings/rust/wasmedge-sys/src/instance/custom_wasi_module.rs
-
