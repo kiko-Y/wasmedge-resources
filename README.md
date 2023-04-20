@@ -6,7 +6,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
 
 ## 以下是一些常用网站的地址😄：
 
-### Rust 🦀
+### Rust [<img src="https://www.rust-lang.org/static/images/rust-logo-blk.svg" style="position:relative; top:15px; width:50px; height:50px;">](https://www.rust-lang.org/zh-CN/)
 - Rust 程序设计语言
 
   中文版：https://kaisery.github.io/trpl-zh-cn/
@@ -35,7 +35,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   
   https://crates.io/
 
-### WASM
+### WASM [<img src="https://webassembly.org/css/webassembly.svg" style="position:relative; top:30px; height:70px; width:70px;">](https://webassembly.org/)
 
 - WasmEdge的Github仓库
   
@@ -55,3 +55,4 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
 - WASI的Rust参考实现
   
   https://github.com/apepkuss/WasmEdge/blob/rust/feat-new-vm/bindings/rust/wasmedge-sys/src/instance/custom_wasi_module.rs
+
