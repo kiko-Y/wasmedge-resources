@@ -1,5 +1,7 @@
 # wasmedge-resources
 
+[![](https://img.shields.io/badge/rustc-v1.68.2-green)](https://blog.rust-lang.org/2023/03/28/Rust-1.68.2.html)
+
 wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应的解决方案
 
 <a href="https://github.com/sunface/rust-course">
