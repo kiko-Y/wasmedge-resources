@@ -1,0 +1,2 @@
+# wasmedge-resources
+resources share
