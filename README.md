@@ -39,6 +39,10 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   
   https://crates.io/
 
+- 贴代码和在线运行的平台
+  
+  https://play.rust-lang.org/?version=stable&mode=debug&edition=2021
+
 ### WASM [<img src="https://webassembly.org/css/webassembly.svg" style="position:relative; top:30px; height:70px; width:70px;">](https://webassembly.org/)
 
 - WasmEdge的Github仓库
