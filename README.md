@@ -63,11 +63,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
 
   
 
-<<<<<<< HEAD
 ### WASI <a href="https://wasi.dev/"><img src = https://wasi.dev/polyfill/WASI-small.png style="position:relative; top:15px; left:10px; height:50px; width:50px; "></a>
-=======
-### WASI <a href="https://wasi.dev/"><img src = https://wasi.dev/polyfill/WASI-small.png style="position:relative; top:15px; left:10px; height:70px; width:70px; "></a>
->>>>>>> 1f18d4e9c8eda2f76cd5ac7c50ef8bb15372f962
 
 - WASI文档
   
@@ -78,11 +74,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   https://github.com/WebAssembly/WASI/blob/main/legacy/preview1/docs.md
 
 
-<<<<<<< HEAD
 ### WasmEdgeRuntime <a href="https://wasmedge.org/"><img src = https://wasmedge.org/img/wasmedge-horizontal-white.svg style="position:relative; top:43px; left:10px; height:100px; width:100px; "></a>
-=======
-### WasmEdgeRuntime <a href="https://wasmedge.org/"><img src = https://wasmedge.org/img/wasmedge-horizontal-white.svg style="position:relative; top:45px;left:10px; height:70px; width:70px; "></a>
->>>>>>> 1f18d4e9c8eda2f76cd5ac7c50ef8bb15372f962
 
 
 - WasmEdge的Github仓库
