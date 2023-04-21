@@ -53,7 +53,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   
   https://play.rust-lang.org/?version=stable&mode=debug&edition=2021
 
-### WASM [<img src="https://webassembly.org/css/webassembly.svg" style="position:relative; top:25px; height:70px; width:70px;">](https://webassembly.org/)
+### WASM <a href="https://webassembly.org/"><img src="https://webassembly.org/css/webassembly.svg" style="position:relative; top:25px; height:70px; width:70px;"></a>
 
 - WASM官方文档
 
@@ -63,7 +63,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
 
   
 
-### WASI <a href="https://wasi.dev/"><img src = https://wasi.dev/polyfill/WASI-small.png style="position:relative; top:15;left:10; height:45; width:45; "></a>
+### WASI <a href="https://wasi.dev/"><img src = https://wasi.dev/polyfill/WASI-small.png style="position:relative; top:15px; left:10px; height:70px; width:70px; "></a>
 
 - WASI文档
   
@@ -74,7 +74,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   https://github.com/WebAssembly/WASI/blob/main/legacy/preview1/docs.md
 
 
-### WasmEdgeRuntime <a href="https://wasmedge.org/"><img src = https://wasmedge.org/img/wasmedge-horizontal-white.svg style="position:relative; top:45;left:10; height:100; width:100; "></a>
+### WasmEdgeRuntime <a href="https://wasmedge.org/"><img src = https://wasmedge.org/img/wasmedge-horizontal-white.svg style="position:relative; top:45px;left:10px; height:70px; width:70px; "></a>
 
 
 - WasmEdge的Github仓库
