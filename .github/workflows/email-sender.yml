@@ -34,7 +34,7 @@ jobs:
           # 必需，发送人全名 (地址可以省略)
           from: kiko # <alice@example.com>
           # 可选，文本内容
-          body: ${{github.actor}} pushed a commit to the master of ${{ github.action_repository }}!
+          body: ${{github.actor}} pushed a commit to the master of ${{github.repository}}!
           # # 可选，HTML内容，可从文件读取
           # html_body: file://README.md
           # # 可选，抄送人
