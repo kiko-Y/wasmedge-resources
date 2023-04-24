@@ -9,6 +9,9 @@ on:
 jobs:
   send-email:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        receivers: [sjy908159199@126.com]
     steps:
       - name: CheckoutRepo
         uses: actions/checkout@v2
@@ -27,11 +30,11 @@ jobs:
           # 必需，邮件主题
           subject: Github Actions job results
           # 必需，收件人地址
-          to: sjy908159199@126.com
+          to: ${{ matrix.receivers }}
           # 必需，发送人全名 (地址可以省略)
           from: kiko # <alice@example.com>
           # 可选，文本内容
-          body: ${{github.actor}} pushed a commit to the master!
+          body: ${{github.actor}} pushed a commit to the master of ${{ github.action_repository }}!
           # # 可选，HTML内容，可从文件读取
           # html_body: file://README.md
           # # 可选，抄送人
