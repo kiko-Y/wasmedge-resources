@@ -110,4 +110,5 @@
 Ref
 
 1. https://yeasy.gitbook.io/docker_practice/, 介绍了Docker常用的命令
-2. https://zhuanlan.zhihu.com/p/61447507 oh-my-zsh 插件
+2. https://juejin.cn/post/7110235194124140574 vscode 远程连接 docker
+3. https://zhuanlan.zhihu.com/p/61447507 oh-my-zsh 插件
