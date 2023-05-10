@@ -7,7 +7,7 @@
 
 3. 使用命令 `docker run -it --name wasi-dev --mount type=bind,source=/Users/bytedance/dev/wasm,target=/root/wasm/ wasmedge/wasmedge:ubuntu-build-clang` 启动一个容器. 执行完命令后, 就在容器中开了一个 bash. 容器中的 `/root/wasm/` 就是我们的共享目录.(source目录需要提前创建)
 
-4. 打开VSCode, 安装Docker扩展, 如图操作
+4. 打开VSCode, 安装**Docker、Dev Containers、Remote-SSH**扩展,然后如图操作
    
    <img title="" src="README.assets/2023-05-10-13-20-15-image.png" alt="" width="560">
 
