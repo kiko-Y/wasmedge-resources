@@ -56,6 +56,20 @@
    apt install vim
    ```
 
+- git 配置 ssh
+   ```shell
+   # 生成秘钥对 (输入命令之后三次 enter )
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   # 在后台启动 ssh 代理
+   eval "$(ssh-agent -s)"
+   # 将私钥添加到ssh-agent代理
+   ssh-add ~/.ssh/id_ed25519
+   # 获取公钥
+   cat ~/.ssh/id_ed25519.pub 
+   ```
+
+   将公钥加入github的ssh key中即可
+
 - 安装 oh-my-zsh
    ```shell
    apt install zsh
