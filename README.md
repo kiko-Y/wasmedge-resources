@@ -81,6 +81,10 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   
   https://github.com/WasmEdge/WasmEdge
 
+- 使用文档
+
+  https://wasmedge.org/book/en/index.html
+
 - WasmEdge-Rustsdk的使用例子
   
   https://github.com/second-state/wasmedge-rustsdk-examples

@@ -1,8 +1,24 @@
 1. 用户如何使用插件? 直接通过 Rust Crate 使用? 在两种 WasmEdge 应用形式中解释这个问题.
 
+    目前的理解是：用户将需要使用的插件的动态库安装到插件库中，然后在用户的程序中声明需要用的插件模块以及需要使用的方法，然后进行调用 
+    
+
 2. VSCode 扩展 rust-analyzer 如何指定 workspace 目录? 由于 WasmEdge 根目录中没有 Cargo.toml, 其会认为不是有效的 Rust 工作空间. 
+    
+    创建一个Cargo.toml 然后在里面加上在 workspace，members 属性中填上属于 workspace 的 packages，如下所示:  
+    ![](README.assets/rust-workspace.jpg)
+
 
 3. 什么是 Module, 什么是 Instance? 有如此多种类的 Instance, 包括 Func Instance, Executor Instance
+
+4. --target wasm32-wasi 的作用是什么，只是将目标编译成 wasm 模块吗
+
+    > WASI provides a standardized interface for WebAssembly modules to interact with the host operating system in a secure and platform-independent manner. By targeting wasm32-wasi, you're specifying that the Wasm module should be built with the necessary interfaces and capabilities to interact with the underlying system through the WASI runtime.  
+    > It's important to note that in order to execute a Wasm module compiled with wasm32-wasi, you will need a WASI-compliant runtime or environment that provides the necessary system interfaces and capabilities defined by the WASI specification. 
+
+    意思是把编译目标设置为 wasm32-wasi，从而可以使用提供 WASI 接口的 runtime 进行执行？
+    
+    另一个问题是，如果以 wasm32-wasi 为编译目标，那么不同的提供了 WASI 接口的 runtime 都可以执行这个 wasm 文件吗
 
 先选定一个WASI接口, 看其C++是如何实现的, 然后再看Sam的Rust是怎么实现的.
 
