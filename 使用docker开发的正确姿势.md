@@ -44,7 +44,7 @@
    ```
 - 安装 wasmedge 相关工具链
    ```shell
-   curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash
+   curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.12.0 -p /usr/local
    # 更新当前shell的环境变量
    source /root/.bashrc
    # 添加rustup toolchain
@@ -76,7 +76,7 @@
    sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
    ```
    只用就可以用zsh了
-   前面装 wasmedge 的时候 ~/.bashrc 中写入了一些环境变量的配置，要把它写到 ~/.zshrc中
+   前面装 wasmedge 和 rust 的时候 ~/.bashrc 中写入了一些环境变量的配置，要把它写到 ~/.zshrc中
 
    ```shell
    vim ~/.zshrc
@@ -84,7 +84,7 @@
    在最后写入：
    ```shell
    . "$HOME/.cargo/env"
-   . "/root/.wasmedge/env"
+   . "/usr/local/env"
    ```
 
    可以安装一些zsh的插件:
@@ -105,8 +105,14 @@
 
    然后就可以愉快的干活了！！！！！
 
-   之后就可以通过 `docker exec -it wasi-dev zsh` 进容器了
+   之后可以通过 `docker exec -it wasi-dev zsh` 进容器了
 
+   一些比较常用的工具(欢迎补充)：
+   ```shell
+   apt install tree
+   apt install locate
+   ```
+   
 Ref
 
 1. https://yeasy.gitbook.io/docker_practice/, 介绍了Docker常用的命令
