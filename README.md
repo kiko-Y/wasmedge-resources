@@ -61,6 +61,10 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
 
   英文版: https://webassembly.org/
 
+- WebAssembly Spec
+
+  https://github.com/WebAssembly/spec
+
   
 
 ### WASI <a href="https://wasi.dev/"><img src = https://wasi.dev/polyfill/WASI-small.png style="position:relative; top:15px; left:10px; height:50px; width:50px; "></a>
