@@ -1,1 +1,8 @@
 .DS_Store
+
+
+
+# directories
+temp
+tmp
+_*

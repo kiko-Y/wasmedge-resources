@@ -1,3 +1,5 @@
+# Questions
+
 1. 用户如何使用插件? 直接通过 Rust Crate 使用? 在两种 WasmEdge 应用形式中解释这个问题.
    
     目前的理解是：~~用户将需要使用的插件的动态库安装到插件库中，然后在用户的程序中声明需要用的插件模块以及需要使用的方法，然后进行调用。~~  
@@ -25,19 +27,22 @@
 
 3. VSCode 扩展 rust-analyzer 如何指定 workspace 目录? 由于 WasmEdge 根目录中没有 Cargo.toml, 其会认为不是有效的 Rust 工作空间. 
    
+   <font color="greenyellow">
     创建一个Cargo.toml 然后在里面加上在 workspace，members 属性中填上属于 workspace 的 packages，如下所示:  
-    ![](README.assets/rust-workspace.jpg)
-
+    <img src="README.assets/rust-workspace.jpg"/>
+    </font>
 4. 什么是 Module, 什么是 Instance? 有如此多种类的 Instance, 包括 Func Instance, Executor Instance
 
 5. --target wasm32-wasi 的作用是什么，只是将目标编译成 wasm 模块吗
    
    > WASI provides a standardized interface for WebAssembly modules to interact with the host operating system in a secure and platform-independent manner. By targeting wasm32-wasi, you're specifying that the Wasm module should be built with the necessary interfaces and capabilities to interact with the underlying system through the WASI runtime.  
    > It's important to note that in order to execute a Wasm module compiled with wasm32-wasi, you will need a WASI-compliant runtime or environment that provides the necessary system interfaces and capabilities defined by the WASI specification. 
-   
+
+   <font color="yellowgreen">
     意思是把编译目标设置为 wasm32-wasi，从而可以使用提供 WASI 接口的 runtime 进行执行？
    
     另一个问题是，如果以 wasm32-wasi 为编译目标，那么不同的提供了 WASI 接口的 runtime 都可以执行这个 wasm 文件吗
+    </font>
 
 先选定一个WASI接口, 看其C++是如何实现的, 然后再看Sam的Rust是怎么实现的.
 
@@ -78,3 +83,28 @@
 ### 05-11
 
 在 Wasm Spec 中, 一个VM是如何定义的? 一个VM都包括什么
+
+
+### 05-12
+
+##### 一些关于 wasm 的基础问题
+1. wasi接口是给用户定义的还是给runtime定义的，用户应该只需要使用sdk而不需要关注wasi接口？所以我们实现接口的部分原因是类似提供一个适配器，用户可以使用宿主程序用的语言的所有类型，我们在中间进行了适配，自动转换成 wasm 的类型，是这样吗？如果是给runtime使用的话， runtime 自身却要去实现这个接口，而不是使用接口，这里有点不太理解。
+
+2. wasmruntime 实现了 wasi 接口，作用是什么，不实现接口会有什么影响。既然是个沙盒，wasmruntime是如何实现 wasi 接口调用宿主机操作系统资源的？
+
+
+3. 不实现wasi的情况下，wasm runtime如何和系统交互(像emscripten那样生成JavaScript胶水代码，然后使用胶水代码调用操作系统功能吗)
+    
+    <font color="greenyellow">
+    </font>
+
+4. 用户是如何使用wasm的，什么情况下需要使用wasm来代替本地方法实现功能
+
+5. wasm的编译过程是怎么样的，如下图所示正确吗？（不同语言的代码，通过各自的编译器，得到平台无关的.wasm字节码，然后再通过wasmruntime编译成平台相关机器码执行[直接编译应用或者在其他宿主程序中调用Wasm VM进行编译运行]）
+    ```mermaid
+    graph LR
+    cpp --> |clang| wasm[".wasm bytecode"]
+    rust --> |rustc| wasm
+    swift --> |swiftwasm| wasm
+    wasm --> |wasmruntime| mc["machine code(in sepcific platform)"]
+    ```
