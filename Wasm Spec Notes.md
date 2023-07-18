@@ -12,4 +12,18 @@ Wasm Spec 分几个部分讲解了 Wasm 的语法和语义.
 
 一个 Module Instance 是一个 Module 的运行时表示, 包括导入的实体(Import, 从其他模块导入的), 模块本身定义的实体, 导出的实体(Exported, 供其他模块使用的)
 
+(module instance 包括 wasm module 和 host module)&nbsp;[🔗][2]
+> The host module is a module instance that contains host functions, tables, memories, and globals, the same as the WASM modules. Developers can use APIs to add the instances into a host module. After registering the host modules into a VM or Store context, the exported instances in that modules can be imported by WASM modules when instantiating.
 
+
+
+### Function Instance
+一个 Function Instance 是一个 Function 的运行时表示，如果要使用一个 **Host Function**，就必须先创建 function instance，然后把它导入到 module instance 当中去。[🔗][1]
+
+
+
+
+
+
+[1]: https://wasmedge.org/book/en/sdk/c/hostfunction.html#functions "host-function"
+[2]: https://wasmedge.org/book/en/sdk/c/hostfunction.html#host-modules "host-module"

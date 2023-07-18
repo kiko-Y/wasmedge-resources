@@ -85,7 +85,7 @@
 在 Wasm Spec 中, 一个VM是如何定义的? 一个VM都包括什么
 
 
-### 05-12
+### 05-18
 
 ##### 一些关于 wasm 的基础问题
 1. wasi接口是给用户定义的还是给runtime定义的，用户应该只需要使用sdk而不需要关注wasi接口？所以我们实现接口的部分原因是类似提供一个适配器，用户可以使用宿主程序用的语言的所有类型，我们在中间进行了适配，自动转换成 wasm 的类型，是这样吗？如果是给runtime使用的话， runtime 自身却要去实现这个接口，而不是使用接口，这里有点不太理解。
@@ -108,3 +108,45 @@
     swift --> |swiftwasm| wasm
     wasm --> |wasmruntime| mc["machine code(in sepcific platform)"]
     ```
+
+### 05-19
+1. host-function 是怎么 import 进 wasmedge 的 module 中的，需要使用指定的 wasm 类型而不能直接用 host program 写好的代码 ([example](https://wasmedge.org/book/en/sdk/c/hostfunction.html) here)。 
+   必须使用：
+    ```c
+    // A simple host function can be defined as follows:
+    #include <wasmedge/wasmedge.h>
+
+    /* This function can add 2 i32 values and return the result. */
+    WasmEdge_Result Add(void *, const WasmEdge_CallingFrameContext *,
+                        const WasmEdge_Value *In, WasmEdge_Value *Out) {
+        /*
+        * Params: {i32, i32}
+        * Returns: {i32}
+        */
+
+        /* Retrieve the value 1. */
+        int32_t Val1 = WasmEdge_ValueGetI32(In[0]);
+        /* Retrieve the value 2. */
+        int32_t Val2 = WasmEdge_ValueGetI32(In[1]);
+        /* Output value 1 is Val1 + Val2. */
+        Out[0] = WasmEdge_ValueGenI32(Val1 + Val2);
+        /* Return the status of success. */
+        return WasmEdge_Result_Success;
+    }
+    ```
+
+    而不是:
+    ```c
+    int add(int a, int b) {
+        return a + b;
+    }
+    ```
+
+    如果是因为导入 host function 的过程中需要做转换，为什么不能使用 runtime 进行这个转换呢
+
+    <!-- 因为在看 rust 调用 host function 的时候，可以直接用 rust 的内置类型写好 host function 然后编译成 .wasm 再加载使用 -->
+    在 [rust-sdk-example](https://github.com/second-state/wasmedge-rustsdk-examples) 中:
+    - [run-wasm-app-from-host](https://github.com/second-state/wasmedge-rustsdk-examples/tree/main/run-wasm-app-from-host)是不需要使用 wasm 提供的类型的，可以直接用内置类型， 然后编译成 wasm 模块，供 host program 调用
+    - [define-host-func](https://github.com/second-state/wasmedge-rustsdk-examples/tree/main/define-host-func)是需要使用 wasm 提供的类型的，而且需要传递特定的参数才行
+
+    在这两个 example 中，前者不是 host-fucntion，而后者是host-function 吗，这两种调用的区别是什么
