@@ -9,11 +9,11 @@
 
 4. 打开VSCode, 安装**Docker、Dev Containers、Remote-SSH**扩展,然后如图操作
    
-   <img title="" src="README.assets/2023-05-10-13-20-15-image.png" alt="" width="560">
+   <img title="" src="../../README.assets/2023-05-10-13-20-15-image.png" alt="" width="560">
 
 5. 此时会打开一个新的VSCode窗口, 左下角会显示你在容器里, 然后打开文件夹即可开始工作.
    
-   <img title="" src="README.assets/screenshot-20230510-132245.png" alt="" width="546">
+   <img title="" src="../../README.assets/screenshot-20230510-132245.png" alt="" width="546">
 
 6. 如果想切换文件夹, 该如何操作? 使用 Command + Shift + P 调出命令栏, 输入 File: Open Folder 即可.
 
