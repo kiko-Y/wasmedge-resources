@@ -49,81 +49,106 @@ WebAssembly binary 以 module 的形式组织，WebAssembly modules 包含 funct
 验证解码后模块，保证有意义且是安全的。会对方法的类型和指令序列进行检查
 
 #### Execution
+
 执行可以细分两块
+
 ##### 1. Instantiation
+
 把模块实例化为 **module instance**，类似于程序和进程的关系，module instance 是 module 的动态表示，有自己的状态和执行栈。初始化会执行 module 本身，导入所有的 imports，并初始化 global variables、memories 和 tables。并调用 **start function**。会返回 module 的导出实例。
+
 ##### 2. Invocation
+
 实例化后可以调用 WebAssembly 的导出函数，给定需要的入参，执行相应的函数，返回结果。
 
 Instantiation 和 Invocation 都是在宿主环境中执行的。
 
-
 ## 5. 定义
+
 包括了值的范围定义，元数据的定义以及名称的定义
 这里的定义使用了文本描述，而非抽象语法(abstract syntax)描述
+
 ### 5.1. Values
+
 #### 5.1.1 Bytes
+
 **byte** 可以表示为`0x00`到到`0xFF`之间的值
 #### 5.1.2 Integers
+
 **uN** 表示 $0...2^N-1$
 
 **sN** 表示 $-2^{N-1}...2^{N-1}-1$
 
 **iN** 同uN
+
 #### 5.1.3 Floating-Point
+
 符合IEEEE754标准的浮点数
+
 #### 5.1.4 Vectors
+
 表示 128-bit values，用 i128 表示
 
 #### 5.1.5 Names
+
 **name** 可以表示为若干个 char
 **char** 可以由Unicode表示 U+00 - U+D7FF $\cup$ U+E000 - U+10FFFF
 
-
 ### 5.2 Types
+
 这部分具体看 [spec](https://webassembly.github.io/spec/core/_download/WebAssembly.pdf)
 #### 5.2.1 Number Types
+
 $numtype ::= i32 \mid i64 \mid f32 \mid f64$
 
 #### 5.2.2 Vector Types
+
 $vectype ::= v128$
 
 #### 5.2.3 Reference Types
+
 $reftype ::= funcref \mid externref$
 其中 funcref 表示为各种方法的引用，externref 表示所有宿主机中可以传入到 WebAssembly 的对象引用
 这些引用都保存在[tables](#tables)中
 
 #### 5.2.4 Value Types
+
 $valtype ::= numtype \mid vectype \mid reftype$
 
 #### 5.2.5 Result Types
+
 $resulttype ::= [vec(valtype)]$
 value的组合
 
 #### 5.2.6 Function Types
+
 $functype :: = resultype \rightarrow resulttype$
 
 #### 5.2.7 Limits
+
 $limits ::= \{\min u32, \max u32^?\}$
 memory 和 table 的size范围，可以没有最大限制
 
 #### 5.2.8 Memory Types
+
 $memtype ::= limits$
 
 #### 5.2.9 Table Types
+
 $tabletype ::= limits\space reftype$
 
 #### 5.2.10 Global Types
+
 $globaltype ::= mut\space valtype$
 $mut ::= const \mid var$
 
 #### 5.2.11 External Types
+
 $externtype ::= func functype \mid table tabletype \mid mem memtype \mid global globaltype$
 
-
-
 ## WasmEdge 中的概念和定义
+
 ### 1. HostFunction
+
 什么是 HostFunction？
 引用自[ref](https://www.secondstate.io/articles/extend-webassembly/)
 
