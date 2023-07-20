@@ -8,7 +8,7 @@ WebAssembly依赖于两个现存标准
 2. Unicode，用于模块导入和导出的命名以及文本类型的格式
 
 ### 2. WebAssembly的定位
-WebAssembly(wasm)是一种低级的，类似于汇编的语言。最初是为了提高浏览器端渲染运算的速度而提出的一种方案，在JavaScript中导入 wasm 模块来提高运行速度，因为 wasm 和机器语言更接近，而且已经。
+WebAssembly(wasm)是一种低级的，类似于汇编的语言。最初是为了提高浏览器端渲染运算的速度而提出的一种方案，在JavaScript中导入 wasm 模块来提高运行速度，因为 wasm 和机器语言更接近，而且已经经过了 AOT 编译，优化了性能。之后在服务端也用到了 wasm，包括云原生、边缘计算和去中心化应用，也用在了微服务和 serverless 应用上。
 
 ### 3. 概念
 #### Values
@@ -30,7 +30,7 @@ table 是一系列不透明的 values，由特定的一些 **element type** 组�
 
 
 #### Linear Memory
-Linear Memory 是一个连续可变的字节数组。创建的时候会有一个初始内存，并且可以动态增长。程序可以从 Linear Memory 的任何字节地址中 load 或者 store values。数值类型在load 和 store 过程中可以选取一个比自身大小小的 storage size。如果使用的地址超过了便捷，则会产生 [**trap**](#traps)。
+Linear Memory 是一个连续可变的字节数组。创建的时候会有一个初始内存，并且可以动态增长。程序可以从 Linear Memory 的任何字节地址中 load 或者 store values。数值类型在load 和 store 过程中可以选取一个比自身大小小的 storage size。如果使用的地址超过了边界，则会产生 [**trap**](#traps)。
 
 
 #### Modules
