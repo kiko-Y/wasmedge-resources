@@ -17,7 +17,7 @@ WebAssembly 只提供了四种数值类型：**i32、i64、f32、f64**，其中 
 最后，values 还可以由一些引用组成，作为指针指向不同的实体。
 
 #### Instructions
-WebAssembly 是基于 stack machine 的，指令顺序执行，有一个隐含的操作数栈，在这个栈上对 values 进行操作。指令分为两种类型：**Simple instructions** 和 **Control instructions**。其中 Simple instructions 负责对数据的基础操作，从栈顶 pop 出数据，操作完之后将数据存入栈顶。Control instructions 负责改变控制流，控制流包括 blocks、loops 和 consitions。
+WebAssembly 是基于 stack machine 的，指令顺序执行，有一个隐含的操作数栈，在这个栈上对 values 进行操作。指令分为两种类型：**Simple instructions** 和 **Control instructions**。其中 Simple instructions 负责对数据的基础操作，从栈顶 pop 出数据，操作完之后将数据存入栈顶。Control instructions 负责改变控制流，控制流包括 blocks、loops 和 conditions。
 
 #### Traps
 在一些情况下，一些指令会造成 **trap**，会立即终止执行。Traps 不能被 WebAssembly 代码处理，但是可以报告给外部环境，由外部环境捕获处理。
@@ -79,6 +79,7 @@ Instantiation 和 Invocation 都是在宿主环境中执行的。
 
 
 ### 5.2 Types
+这部分具体看 [spec](https://webassembly.github.io/spec/core/_download/WebAssembly.pdf)
 #### 5.2.1 Number Types
 $numtype ::= i32 \mid i64 \mid f32 \mid f64$
 
@@ -116,3 +117,21 @@ $mut ::= const \mid var$
 
 #### 5.2.11 External Types
 $externtype ::= func functype \mid table tabletype \mid mem memtype \mid global globaltype$
+
+
+
+## WasmEdge 中的概念和定义
+### 1. HostFunction
+什么是 HostFunction？
+引用自[ref](https://www.secondstate.io/articles/extend-webassembly/)
+
+> &emsp;&emsp;WebAssembly was developed for the browser. It gradually gain popularity on the server-side, but a significant disadvantage is its incomplete functionality and capability. The WASI proposal was initiated to solve these problems. But the forming and implementation of a standard is usually slow.  
+> &emsp;&emsp;What if you want to use a function urgently? The answer is to use the Host Function to customize your WebAssembly Runtime.  
+> &emsp;&emsp;As the name suggests, a Host Function is a function defined in the Host program. For Wasm, the Host Function can be used as an `import` segment to be registered in a `module`, and then it can be called when Wasm is running.  
+> &emsp;&emsp;Wasm has limited capability, but those can't be achieved with Wasm itself can be resolved with Host Function, which **expanded Wasm functionality to a large extent**.  
+> &emsp;&emsp;WasmEdge‘s other extensions apart from standards are majorly based on Host Function, for example, WasmEdge‘s Tensorflow API is implemented with Host Function and thus achieving the goal of running AI inference with the native speed.  
+> &emsp;&emsp;Networking socket is implemented with host function as well. Thus we can run asynchronous HTTP client and server in WasmEdge which compensate for the WebAssembly's disadvantage in networking.  
+> &emsp;&emsp;Another example. Fastly uses Host Function to add HTTP Request and Key-value store APIs to Wasm which added the extension functions.
+
+简单来说就是因为 wasm 能够提供的功能有限，有些无法用 wasm 实现的功能可以使用 `host function` 进行实现。而 `host function` 则是定义在 **host program** 的方法，通过 **import module** 导入到 wasm，然后进行使用。
+[C实现 Host Function 的例子](https://wasmedge.org/docs/embed/c/host_function)
