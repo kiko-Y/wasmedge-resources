@@ -65,8 +65,10 @@ Instantiation 和 Invocation 都是在宿主环境中执行的。
 #### 5.1.1 Bytes
 **byte** 可以表示为`0x00`到到`0xFF`之间的值
 #### 5.1.2 Integers
-**uN** 表示$0...2^N-1$
-**sN** 表示$-2^{N-1}...2^{N-1}-1$
+**uN** 表示 $0...2^N-1$
+
+**sN** 表示 $-2^{N-1}...2^{N-1}-1$
+
 **iN** 同uN
 #### 5.1.3 Floating-Point
 符合IEEEE754标准的浮点数
