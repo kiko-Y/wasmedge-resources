@@ -117,11 +117,13 @@ VM 的构建需要传入 `WasmEdge_ConfigureContext` 和 `WasmEdge_StoreContext`
 WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
 
 1. Wasi
-可以在配置中打开 WASI 支持  
-也可以创建 WASI 的 module instance
+
+  可以在配置中打开 WASI 支持  
+  也可以创建 WASI 的 module instance
 2. plug-ins
-默认路径下有若干插件可供使用(首先需要下载 WasmEdge plug-ins)  
-使用插件之前需要先**加载**插件
+
+  默认路径下有若干插件可供使用(首先需要下载 WasmEdge plug-ins)  
+  使用插件之前需要先**加载**插件
 
 `VM Context`会在创建的时候自动创建和注册已经加载的插件模块
 
@@ -142,16 +144,22 @@ WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
 用于获取 VM 中的实例
 
 1. Store
+
    可以给 `VM` 初始化一个 `Store`，如果没有的话，`VM` 会自动分配一个 `Store`
    提供了获取 `Store` 的接口
 2. List exported functions
+
    提供了接口来获取**方法名**以及**方法参数**列表
 3. Get function types
+
    提供了接口来获取方法类型
 4. Get the active module
+
    当 wasm 模块初始化之后，`VM` 会实例化一个 `anonymous module instance`
    提供了接口来获取 `anonymous module instance`
 5. List and get the registered modules
+
    提供了接口来获取以及注册的 `module instance`
 6. Get the components
+
    获取 `VM` 中的组件，包括 `Loader`, `Validator` 和 `Executor`。
