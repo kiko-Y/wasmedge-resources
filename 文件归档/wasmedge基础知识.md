@@ -161,10 +161,9 @@ $externtype ::= func functype \mid table tabletype \mid mem memtype \mid global 
 
 ## WasmEdge 中的概念和定义
 
-### 1. HostFunction
+### 1. HostFunction [🔗](https://www.secondstate.io/articles/extend-webassembly/)
 
 什么是 HostFunction？
-引用自[ref](https://www.secondstate.io/articles/extend-webassembly/)
 
 > &emsp;&emsp;WebAssembly was developed for the browser. It gradually gain popularity on the server-side, but a significant disadvantage is its incomplete functionality and capability. The WASI proposal was initiated to solve these problems. But the forming and implementation of a standard is usually slow.  
 > &emsp;&emsp;What if you want to use a function urgently? The answer is to use the Host Function to customize your WebAssembly Runtime.  
@@ -176,3 +175,54 @@ $externtype ::= func functype \mid table tabletype \mid mem memtype \mid global 
 
 简单来说就是因为 wasm 能够提供的功能有限，有些无法用 wasm 实现的功能可以使用 `host function` 进行实现。而 `host function` 则是定义在 **host program** 的方法，通过 **import module** 导入到 wasm，然后进行使用。
 [C实现 Host Function 的例子](https://wasmedge.org/docs/embed/c/host_function)
+
+```c
+typedef WasmEdge_Result (*WasmEdge_HostFunc_t)(
+    void *Data, const WasmEdge_CallingFrameContext *CallFrameCxt,
+    const WasmEdge_Value *Params, WasmEdge_Value *Returns);
+
+// 这个是 Host Function
+WasmEdge_Result Add(void *Data, const WasmEdge_CallingFrameContext *,
+                    const WasmEdge_Value *In, WasmEdge_Value *Out) {
+    /*
+    * Params: {i32, i32}
+    * Returns: {i32}
+    */
+
+    /* Retrieve the value 1. */
+    int32_t Val1 = WasmEdge_ValueGetI32(In[0]);
+    /* Retrieve the value 2. */
+    int32_t Val2 = WasmEdge_ValueGetI32(In[1]);
+    /* Output value 1 is Val1 + Val2. */
+    Out[0] = WasmEdge_ValueGenI32(Val1 + Val2);
+    /* Return the status of success. */
+    return WasmEdge_Result_Success;
+}
+
+
+```
+
+```c
+// 入参
+enum WasmEdge_ValType ParamList[2] = {WasmEdge_ValType_I32,
+                                      WasmEdge_ValType_I32};
+// 出参
+enum WasmEdge_ValType ReturnList[1] = {WasmEdge_ValType_I32};
+/* Create a function type: {i32, i32} -> {i32}. */
+WasmEdge_FunctionTypeContext *HostFType =
+    WasmEdge_FunctionTypeCreate(ParamList, 2, ReturnList, 1);
+/*
+  * Create a function context with the function type and host function body.
+  * The `Cost` parameter can be 0 if developers do not need the cost
+  * measuring.
+  * 第三个参数是 `Host Data` 传入进去到上面 `Host Function` 中的 void* Data 参数
+  */
+WasmEdge_FunctionInstanceContext *HostFunc =
+    WasmEdge_FunctionInstanceCreate(HostFType, Add, NULL, 0);
+```
+
+### 2. Host Module [🔗](https://wasmedge.org/docs/embed/c/host_function#host-modules)
+
+什么是 Host Module？
+
+`Host Module` 包含 `host functions`, `tables`, `memories` 和 `globals`，和 wasm module 类似。开发人员可以把这些实例加入到 `Host Module` 中去(也是一个 `module instance`)。当 `Host Module` 被注册到 VM 或者 Store 中之后，`Host Module` 中的导出实例可以在 wasm module 实例化的时候导入。

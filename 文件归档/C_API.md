@@ -95,4 +95,63 @@ todo
 
 ## Part 2 WasmEdge VM
 
-主要介绍 `WasmEdge_VMContext` 对象。
+主要介绍 `WasmEdge_VMContext` 对象，VM 用来加载注册 `wasm module`，并调用各种 `function`。
+
+### VM 如何加载 wasm 文件并调用对应的方法
+
+下面是 VM 加载 wasm 文件并执行相应方法的整个步骤流。
+<img src="../README.assets/WasmEdge-VM-work-flow.png" width=500>
+
+1. Initiate: 初始化 VM
+2. Load: 加载 wasm 文件到 VM 中
+3. Validate: 验证加载的 wasm module
+4. Instantiate: 实例化 wasm module
+5. Execute: 执行 wasm function
+
+### VM Creations [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#vm-creations)
+
+VM 的构建需要传入 `WasmEdge_ConfigureContext` 和 `WasmEdge_StoreContext`，如果用默认的配置，就传空即可。
+
+### Built-in Host Modules and Plug-in Preregistrations [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#built-in-host-modules-and-plug-in-preregistrations)
+
+WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
+
+1. Wasi
+可以在配置中打开 WASI 支持  
+也可以创建 WASI 的 module instance
+2. plug-ins
+默认路径下有若干插件可供使用(首先需要下载 WasmEdge plug-ins)  
+使用插件之前需要先**加载**插件
+
+`VM Context`会在创建的时候自动创建和注册已经加载的插件模块
+
+### Host Module Registrations [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#host-module-registrations)
+
+`Host Funciton` 是 wasm 外部的方法，通过导入到 `wasm module` 使用。在 WasmEdge 中， `Host Function` 组合进 `Host Module` 当中，作为一个 `WasmEdge_ModuleInstanceContext` 对象，并拥有一个模块名，注册到 VM 中使用。
+
+### WASM Registrations And Executions [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#wasm-registrations-and-executions)
+
+在 WebAssembly 中，`wasm module` 中的 instance 可以被导出或者被其他 wasm 模块导入。WasmEdge VM 提供了一系列的 API 来注册和导出 `wasm module`，并且可以执行注册了的 `wasm module` 的 `host function` 或者 `function`(function 是在 wasm module 中的，host function 是在 host module 中的)。
+
+### Asynchronous Execution [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#asynchronous-execution)
+
+提供了异步执行的方法
+
+### Instance Tracing
+
+用于获取 VM 中的实例
+
+1. Store
+   可以给 `VM` 初始化一个 `Store`，如果没有的话，`VM` 会自动分配一个 `Store`
+   提供了获取 `Store` 的接口
+2. List exported functions
+   提供了接口来获取**方法名**以及**方法参数**列表
+3. Get function types
+   提供了接口来获取方法类型
+4. Get the active module
+   当 wasm 模块初始化之后，`VM` 会实例化一个 `anonymous module instance`
+   提供了接口来获取 `anonymous module instance`
+5. List and get the registered modules
+   提供了接口来获取以及注册的 `module instance`
+6. Get the components
+   获取 `VM` 中的组件，包括 `Loader`, `Validator` 和 `Executor`。
