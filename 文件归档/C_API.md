@@ -118,12 +118,12 @@ WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
 
 1. Wasi
 
-  可以在配置中打开 WASI 支持  
-  也可以创建 WASI 的 module instance
+   可以在配置中打开 WASI 支持  
+   也可以创建 WASI 的 module instance
 2. plug-ins
 
-  默认路径下有若干插件可供使用(首先需要下载 WasmEdge plug-ins)  
-  使用插件之前需要先**加载**插件
+   默认路径下有若干插件可供使用(首先需要下载 WasmEdge plug-ins)  
+   使用插件之前需要先**加载**插件
 
 `VM Context`会在创建的时候自动创建和注册已经加载的插件模块
 
