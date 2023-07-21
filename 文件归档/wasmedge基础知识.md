@@ -198,8 +198,6 @@ WasmEdge_Result Add(void *Data, const WasmEdge_CallingFrameContext *,
     /* Return the status of success. */
     return WasmEdge_Result_Success;
 }
-
-
 ```
 
 ```c
