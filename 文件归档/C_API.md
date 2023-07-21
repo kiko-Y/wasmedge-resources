@@ -1,8 +1,10 @@
 # WASMEDGE C API
 
+[TOC]
+
 wasmedge c 的 api 概览，对照着[官方文档](https://wasmedge.org/docs/embed/c/reference/latest#version)看吧
 
-## Part 1 WasmEdge Basics
+## Part 1 WasmEdge Basics [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#wasmedge-basics)
 
 ### Version
 
@@ -93,11 +95,11 @@ typedef struct WasmEdge_Limit {
 
 `WasmEdge_StatisticsContext` 提供了一系列的运行时数据统计，包括指令计数器、耗时统计。
 
-## Part 2 WasmEdge VM
+## Part 2 WasmEdge VM [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#wasmedge-vm)
 
 主要介绍 `WasmEdge_VMContext` 对象，VM 用来加载注册 `wasm module`，并调用各种 `function`。
 
-### VM 如何加载 wasm 文件并调用对应的方法
+### VM 如何加载 wasm 文件并调用对应的方法 [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#wasm-execution-example-with-vm-context)
 
 下面是 VM 加载 wasm 文件并执行相应方法的整个步骤流。
 
@@ -140,7 +142,7 @@ WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
 
 提供了异步执行的方法
 
-### Instance Tracing
+### Instance Tracing [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#instance-tracing)
 
 用于获取 VM 中的实例
 
@@ -165,19 +167,19 @@ WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
 
    获取 `VM` 中的组件，包括 `Loader`, `Validator` 和 `Executor`。
 
-## Part 3 WasmEdge Runtime
+## Part 3 WasmEdge Runtime [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#wasmedge-runtime)
 
-### Loader
+### Loader [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#loader)
 
 用于加载 wasm 的二进制文件或者加载 wasm 的二进制 buffer。  
 支持 wasm 和 经过 wasmedge AOT 编译后的 wasm-aot  
 加载后返回一个 `AST module context`
 
-### Validator
+### Validator [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#validator)
 
 用于**验证** `wasm module`，`wasm module` 在实例化之前必须要经过验证。
 
-### Exector
+### Exector [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#executor)
 
 执行器，必须要基于 `Store` 才能工作。
 
@@ -203,11 +205,11 @@ WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
 
 将 wasm 的二进制通过 `Loader` 加载后得到 `AST Module`，表示为一种 **loaded structure**。在实例化之前，可以获取 `AST Module` 中的导入实例和导出实例。
 
-### Store
+### Store [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#store)
 
 用来表示 wasm 程序可以操作的所有 `global state` 的一种运行时结构。在实例化的时候链接模块，当 `Store` 被删除之后，所有其中的模块都会和 `Store` 断开链接；一个 `Module instance` 删除后，会和所有以及链接的 `Store` 断开链接。
 
-### Instance
+### Instance [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#instances)
 
 1. Module Instance
 2. Function instance
@@ -215,7 +217,7 @@ WasmEdge 提供了以下的内置 `host modules` 和 `plug-in`
 4. Memory Instance
 5. Global Instance
 
-### Host Functions
+### Host Functions [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#host-functions)
 
 C 中 `Host Function` 的声明如下
 
@@ -290,7 +292,7 @@ C 中 `Host Function` 的声明如下
 
    `WasmEdge_ModuleInstanceCreateWASI()` 方法可以创建 `WASI module instance`
 
-### Plug-ins
+### Plug-ins [🔗](https://wasmedge.org/docs/embed/c/reference/latest/#plug-ins)
 
 WasmEdge 的 `plug-ins` 是一些共享库，提供给 WasmEdge runtime 来加载和创建 `host module instance`用的。WasmEdge runtime 可以通过插件更方便地扩展。
 
