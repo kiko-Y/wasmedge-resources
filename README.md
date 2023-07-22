@@ -92,7 +92,7 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
 
 - 使用文档
 
-  <https://wasmedge.org/book/en/index.html>
+  <https://wasmedge.org/docs/develop/overview/>
 
 - WasmEdge-Rustsdk的使用例子
   
@@ -102,6 +102,10 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   
   <https://github.com/WasmEdge/WasmEdge/tree/master/lib/host/wasi>
 
-- WasmEdge中WASI的Rust参考实现
+- WasmEdge 中 WASI 的 Rust 参考实现
   
   <https://github.com/apepkuss/WasmEdge/blob/rust/feat-new-vm/bindings/rust/wasmedge-sys/src/instance/custom_wasi_module.rs>
+
+- WasmEdge Rust SDK 仓库
+
+  <https://github.com/WasmEdge/wasmedge-rust-sdk/tree/main>
