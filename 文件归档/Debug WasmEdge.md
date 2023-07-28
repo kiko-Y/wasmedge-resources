@@ -113,8 +113,6 @@ wasmedge 和 wasmedgec 都是 tools, main函数分别在 WasmEdge/tools/wasmedge
      unsafeRegisterPlugInHosts();
    }
    
-   // 在该函数中, 构建了 WasiModule, 并存到了VM的成员变量里.
-   // 该函数仅仅放入了 Wasi, 可见目前只有Wasi一个需要 registration 的 host
    void VM::unsafeLoadBuiltInHosts() {
      // Load the built-in host modules from configuration.
      // TODO: This will be extended for the versionlized WASI in the future.
