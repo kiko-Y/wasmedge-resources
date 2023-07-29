@@ -52,7 +52,7 @@
 - 安装 wasmedge 相关工具链
 
    ```shell
-   curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.12.0 -p /usr/local
+   curl -sSf https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.13.0
    # 更新当前shell的环境变量
    source /root/.bashrc
    # 添加rustup toolchain
@@ -65,20 +65,32 @@
    apt install vim
    ```
 
-- git 配置 ssh
+- git 配置
 
-   ```shell
-   # 生成秘钥对 (输入命令之后三次 enter )
-   ssh-keygen -t ed25519 -C "your_email@example.com"
-   # 在后台启动 ssh 代理
-   eval "$(ssh-agent -s)"
-   # 将私钥添加到ssh-agent代理
-   ssh-add ~/.ssh/id_ed25519
-   # 获取公钥
-   cat ~/.ssh/id_ed25519.pub 
-   ```
+  - ssh
 
-   将公钥加入github的ssh key中即可
+      ```shell
+      # 生成秘钥对 (输入命令之后三次 enter )
+      ssh-keygen -t ed25519 -C "your_email@example.com"
+      # 在后台启动 ssh 代理
+      eval "$(ssh-agent -s)"
+      # 将私钥添加到ssh-agent代理
+      ssh-add ~/.ssh/id_ed25519
+      # 获取公钥
+      cat ~/.ssh/id_ed25519.pub 
+      ```
+
+      将公钥加入github的ssh key中即可
+
+   - git 配置
+
+      ```shell
+      git config --global user.name "yourname"
+      git config --global user.email "youremail"
+      # 解决 git status 文件路径中文乱码问题
+      git config --global core.quotepath false
+      ```
+
 
 - 安装 oh-my-zsh
 
