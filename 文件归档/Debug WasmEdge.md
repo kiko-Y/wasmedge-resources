@@ -314,6 +314,47 @@ wasmedge 和 wasmedgec 都是 tools, main函数分别在 WasmEdge/tools/wasmedge
    }
    ```
 
+   ```cpp
+   Plugin::Plugin::PluginDescriptor Descriptor{
+       .Name = "wasi_crypto",
+       .Description = "",
+       .APIVersion = Plugin::Plugin::CurrentAPIVersion,
+       .Version = {0, 10, 1, 0},
+       .ModuleCount = 5,
+       .ModuleDescriptions =
+           (Plugin::PluginModule::ModuleDescriptor[]){
+               {
+                   .Name = "wasi_crypto_asymmetric_common",
+                   .Description = "",
+                   .Create = createAsymmetricCommon,
+               },
+               {
+                   .Name = "wasi_crypto_common",
+                   .Description = "",
+                   .Create = createCommon,
+               },
+               {
+                   .Name = "wasi_crypto_kx",
+                   .Description = "",
+                   .Create = createKx,
+               },
+               {
+                   .Name = "wasi_crypto_signatures",
+                   .Description = "",
+                   .Create = createSignatures,
+               },
+               {
+                   .Name = "wasi_crypto_symmetric",
+                   .Description = "",
+                   .Create = createSymmetric,
+               },
+           },
+       .AddOptions = nullptr,
+   };
+   ```
+
+   
+
    createPluginModule 最后得到 Module, 这个 Module 是一个ModuleDescriptor的实例, 然后调用 Module->Create() 来创建 ModuleInstance 并返回指针.
    根据上面的代码已经知道, Module->Create 最终调用了上述代码块中的 `WasiCryptoAsymmetricCommonModule` 构造函数, 该构造函数, 位于 `plugins/wasi_crypto/common/module.cpp`. 该构造函数和 WasiModule 的构造函数如出一辙, 只不过前者使用 Ctx, 后者使用 Env, 两者都在构造函数中调用了很多 addHostFunc(), 将自己提供的宿主函数加入到 VM 中.
 
@@ -327,7 +368,28 @@ wasmedge 和 wasmedgec 都是 tools, main函数分别在 WasmEdge/tools/wasmedge
 
 在现有的 wasi 设计中, 每个 wasi function 很显然都需要一个 Env 才能正常工作, 所有的 wasi function 可以共享一个 Env, 为此, 可以开一个 Wasi 类, 存一个 Env 的引用, 每个 wasi function 都继承 Wasi, 然后 Wasi 继承 `Runtime::HostFunction<T>` 即可.
 
+### args_size_get 实现
 
+传给 body 的 CallingFrame 以及成员变量 Env 完成了所有工作: 通过 CallingFrame 获取内存实例 (Memory Instance), 然后将传入的偏移量 (ArgcPtr) 计算为指向某个内存地址的指针, 然后调用 Env 的方法, 计算, 赋值并返回.
+
+CallingFrame 是谁传进来的, 什么时候被初始化? 该问题可以通过调试程序解决.
+
+如下代码是 **Executor**::**runCallOp** 的执行片段, 当调用 wasi function 时, 为什么在其当前模块能找到这个函数的实例? 从上面的分析来看, wasi 应该是一个单独的模块. 尝试调试解决.
+
+```cpp
+// lib/executor/engine/controlInstr.cpp
+const auto *FuncInst = *ModInst->getFunc(Instr.getTargetIndex());
+
+// include/runtime/instance/module.h
+Expect<FunctionInstance *> getFunc(uint32_t Idx) const noexcept {
+    std::shared_lock Lock(Mutex);
+    if (Idx >= FuncInsts.size()) {
+      // Error logging need to be handled in caller.
+      return Unexpect(ErrCode::Value::WrongInstanceIndex);
+    }
+    return FuncInsts[Idx];
+  }
+```
 
 
 
