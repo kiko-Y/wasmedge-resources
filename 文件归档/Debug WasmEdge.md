@@ -61,7 +61,7 @@
    export LLVM_DIR="$(brew --prefix)/opt/llvm/lib/cmake"
    export CC=clang
    export CXX=clang++
-   cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DWASMEDGE_BUILD_TESTS=OFF .
+   cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DWASMEDGE_BUILD_TESTS=OFF -DWASMEDGE_PLUGIN_WASI_CRYPTO=On -DWASMEDGE_PLUGIN_WASI_LOGGING=ON -DWASMEDGE_PLUGIN_TENSORFLOW=On .
    cmake --build build
    ```
 
@@ -148,7 +148,195 @@ wasmedge 和 wasmedgec 都是 tools, main函数分别在 WasmEdge/tools/wasmedge
 
 6. 在异步执行之前, 将断点加在 WasmEdge::Host::WasiFdWrite::body, 然后就能看到 Wasi Function 是如何被执行的, 以及执行时刻的调用栈.
 
-需要继续探索的是: 插件实现 wasi 需要了解 Store Manager 的细节吗? 
+
+
+加载 Built-in Module 和 Plugin-in Module 一样吗? 答案是不一样, 如下是一些线索
+
+1. 在 vm.cpp 的 unsafeInit() 中调用了 unsafeLoadPlugInHosts(), 在 unsafeLoadPlugInHosts() 中, 处理每一个插件的代码形如
+   ```C++
+   void VM::unsafeLoadPlugInHosts() {
+     // Load the plugins and mock them if not found.
+     PlugInModInsts.push_back(createPluginModule<Host::WasiNNModuleMock>("wasi_nn"sv, "wasi_nn"sv));
+     PlugInModInsts.push_back(createPluginModule<Host::WasiCryptoCommonModuleMock>(
+         "wasi_crypto"sv, "wasi_crypto_common"sv));
+   }
+   ```
+
+2. createPluginModule 如下:
+   该函数被套在一个匿名namespace中, 很显然是不想让外部文件访问
+   该函数有两个返回路径, 一个是寻找插件->寻找模块->构建模块并返回, 一个是用模版类型创建一个实例返回
+   很显然前者是在你已经安装的插件库中寻找, 而后者使用 Mock Module 来代替, Mock Module 的功能就是打印一条插件没安装日志
+
+   ```cpp
+   namespace {
+   template <typename T>
+   std::unique_ptr<Runtime::Instance::ModuleInstance>
+   createPluginModule(std::string_view PName, std::string_view MName) {
+     using namespace std::literals::string_view_literals;
+     if (const auto *Plugin = Plugin::Plugin::find(PName)) {
+       if (const auto *Module = Plugin->findModule(MName)) {
+         return Module->create();
+       }
+     }
+     spdlog::debug("Plugin: {} , module name: {} not found. Mock instead."sv,
+                   PName, MName);
+     return std::make_unique<T>();
+   }
+   } // namespace
+   
+   // function impl in mock module
+   inline void printPluginMock(std::string_view PluginName) {
+     spdlog::error("{} plugin not installed. Please install the plugin and "
+                   "restart WasmEdge.",
+                   PluginName);
+   }
+   ```
+
+3. 插件的最终形式? 暂时不用管, 只要插件开发出来了, 就能立刻使用 (至少在 Command Line Tool 中是如此, SDK 暂时还没搞明白)!!
+   为什么?
+   因为 `cargo build --target wasm32-wasi --release` 得到的 .wasm 文件, 已经把输入输出函数转换成了 `fd_read()` 和 `fd_write()` 函数, 在执行 `wasmedge hello.wasm` 时, 只要 VM 的某个模块有这两个函数就行, 而这两个函数完全可以来自 Plugin-In Module, 如果该 Plugin-In 是自动安装的, 那么对命令行用户来说甚至不知道我们做了这种改变, 是完全透明的操作.
+
+4. 为了研究编译后的插件是如何被加载到 VM 的, 重新编译 wasmedge, 安装插件.
+   ```shell
+   cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DWASMEDGE_BUILD_TESTS=OFF -DWASMEDGE_PLUGIN_WASI_CRYPTO=On -DWASMEDGE_PLUGIN_WASI_LOGGING=ON -DWASMEDGE_PLUGIN_TENSORFLOW=On .
+   ```
+
+   插件会被编译成动态库, 比如`build/plugins/wasi_crypto/libwasmedgePluginWasiCrypto.dylib` (能不能改成静态库? 这样方便调试)
+   到目前为止, 生成的文件都在 build 目录中, 系统路径(包括 `/usr/local`) 中没有任何关于 wasmedge 的信息 (我也没安装 wasmedge)
+   安装 wasmedge, 执行 `cmake --install build`, 以后调试时, 使用 `lldb /usr/local/bin/wasmedge hello.wasm` 即可加载插件
+
+5. 编译后的插件被加载到 VM:
+   调用栈 unsafeInit -> unsafeLoadPlugInHosts -> createPluginModule
+   在 createPluginModule() 中, 调用了类 Plugin 的静态成员函数 find, 该类中还有两个静态成员变量, 分别是
+
+   ```cpp
+   static std::vector<Plugin> &PluginRegistory;
+   static std::unordered_map<std::string_view, std::size_t> &PluginNameLookup;
+   ```
+
+   每一个插件, 都会在进入 uniTool 之前被构造一个类 Plugin 的实例, 放在 PluginRegistory 中. 而 PluginNameLookup 用于查找某个插件在 PluginRegistory 中的下标, 下面两段代码块解释了他们如何工作的:
+
+   ```cpp
+   (lldb) p PluginNameLookup
+   (std::unordered_map<std::basic_string_view<char, std::char_traits<char> >, unsigned long, std::hash<std::basic_string_view<char, std::char_traits<char> > >, std::equal_to<std::basic_string_view<char, std::char_traits<char> > >, std::allocator<std::pair<const std::basic_string_view<char, std::char_traits<char> >, unsigned long> > >) $0 = size=2 {
+     [0] = {
+       __cc = (first = "wasi_crypto", second = 1)
+     }
+     [1] = {
+       __cc = (first = "wasi_logging", second = 0)
+     }
+   }
+   ```
+
+   如下是一个可能的 PluginResigtory, 包括了两个插件. Plugin 中 ModuleRegistory 最重要, 其声明为 `  std::vector<PluginModule> ModuleRegistory;`, 表明其是存储了该插件相关的所有 Module.
+
+   ```cpp
+   (std::vector<WasmEdge::Plugin::Plugin, std::allocator<WasmEdge::Plugin::Plugin> >) $1 = size=2 {
+     [0] = {
+       Path = (__pn_ = "/usr/local/lib/wasmedge/libwasmedgePluginWasiLogging.dylib")
+       Desc = 0x00000001058ac030
+       Lib = std::__1::shared_ptr<WasmEdge::Loader::SharedLibrary>::element_type @ 0x0000600002c04098 strong=1 weak=2 {
+         __ptr_ = 0x0000600002c04098
+       }
+       ModuleRegistory = size=1 {
+         [0] = {
+           Desc = 0x00000001058ac070
+         }
+       }
+       ModuleNameLookup = size=1 {
+         [0] = {
+           __cc = (first = "wasi:logging/logging", second = 0)
+         }
+       }
+     }
+     [1] = {
+       Path = (__pn_ = "/usr/local/lib/wasmedge/libwasmedgePluginWasiCrypto.dylib")
+       Desc = 0x00000001156ae000
+       Lib = std::__1::shared_ptr<WasmEdge::Loader::SharedLibrary>::element_type @ 0x0000600002c04118 strong=1 weak=2 {
+         __ptr_ = 0x0000600002c04118
+       }
+       ModuleRegistory = size=5 {
+         [0] = {
+           Desc = 0x00000001156ae040
+         }
+         [1] = {
+           Desc = 0x00000001156ae058
+         }
+         [2] = {
+           Desc = 0x00000001156ae070
+         }
+         [3] = {
+           Desc = 0x00000001156ae088
+         }
+         [4] = {
+           Desc = 0x00000001156ae0a0
+         }
+       }
+       ModuleNameLookup = size=5 {
+         [0] = {
+           __cc = (first = "wasi_crypto_symmetric", second = 4)
+         }
+         [1] = {
+           __cc = (first = "wasi_crypto_kx", second = 2)
+         }
+         [2] = {
+           __cc = (first = "wasi_crypto_signatures", second = 3)
+         }
+         [3] = {
+           __cc = (first = "wasi_crypto_common", second = 1)
+         }
+         [4] = {
+           __cc = (first = "wasi_crypto_asymmetric_common", second = 0)
+         }
+       }
+     }
+   }
+   
+   ```
+
+   一个 PluginModule 只有一个 ModuleDescriptor 的成员变量, 其中 Create 是一个函数指针. Create 需要指向的函数在插件编写时, 就已经定义好了, 比如下面的 ctx.cpp 文件.
+   ```c++
+   // include/plugin/plugin.h
+   struct ModuleDescriptor {
+     const char *Name;
+     const char *Description;
+     Runtime::Instance::ModuleInstance *(*Create)(
+         const ModuleDescriptor *) noexcept;
+   };
+   ```
+
+   ```cpp
+   // plugins/wasi_crypto/ctx.cpp
+   Runtime::Instance::ModuleInstance *createAsymmetricCommon(
+       const Plugin::PluginModule::ModuleDescriptor *) noexcept {
+     return new WasiCryptoAsymmetricCommonModule(
+         WasiCrypto::Context::getInstance());
+   }
+   ```
+
+   createPluginModule 最后得到 Module, 这个 Module 是一个ModuleDescriptor的实例, 然后调用 Module->Create() 来创建 ModuleInstance 并返回指针.
+   根据上面的代码已经知道, Module->Create 最终调用了上述代码块中的 `WasiCryptoAsymmetricCommonModule` 构造函数, 该构造函数, 位于 `plugins/wasi_crypto/common/module.cpp`. 该构造函数和 WasiModule 的构造函数如出一辙, 只不过前者使用 Ctx, 后者使用 Env, 两者都在构造函数中调用了很多 addHostFunc(), 将自己提供的宿主函数加入到 VM 中.
+
+6. 如何使用插件? 如何在 Command Line 模式下使用已有插件, 使用自定义插件? 
+   除了该问题, 我们已经知道了插件和 Wasi 的大概框架, 接下来我应该陷入细节. 包括: 1. Args_size_get 是如何声明(包括参数返回值), 定义, 实现的. 2. 插件是如何被加载的, Ctx 如何帮助插件实现功能.
+   最后在切换到 Rust, 直接使用 SDK 进行开发.
+
+### args_size_get 是如何声明的
+
+一个 Host Function 应该如何声明才能正常工作? 如果你完全理解了 Host Function 从注册到工作到销毁的流程, 则你可以按你自己喜欢的方式设计并声明. 然而并不是每个人都想这么做, 庆幸的是类 ` class WasmEdge::Runtime::HostFunction<T>` 已经帮我们做好了部分工作. 通过查看该类的源代码发现, 如果复用其工作, 只需要将你的 Host Function 定义为类, 然后定义一个名为 body 的成员函数, 在 body 中实现真正的函数逻辑, 最后用你的类继承 `Runtime::HostFunction<T>`, 类名传给模版参数 T (因为在 HostFunction 的成员函数中, 其使用 T::body 做很多工作), 最后调用 addHostFunc 即大功告成.
+
+在现有的 wasi 设计中, 每个 wasi function 很显然都需要一个 Env 才能正常工作, 所有的 wasi function 可以共享一个 Env, 为此, 可以开一个 Wasi 类, 存一个 Env 的引用, 每个 wasi function 都继承 Wasi, 然后 Wasi 继承 `Runtime::HostFunction<T>` 即可.
+
+
+
+
+
+## ToDo
+
+1. 插件中的 Module 和 Built-In Module 有什么区别? 
+2. 需要继续探索的是: 插件实现 wasi 需要了解 Store Manager 的细节吗?
+
+ 
 
 
 
