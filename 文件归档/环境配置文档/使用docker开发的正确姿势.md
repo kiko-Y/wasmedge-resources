@@ -8,7 +8,9 @@
    docker pull wasmedge/wasmedge:ubuntu-build-clang
    ```
 
-3. 使用命令 `docker run -it --name wasi-dev --mount type=bind,source=/Users/bytedance/dev/wasm,target=/root/wasm/ wasmedge/wasmedge:ubuntu-build-clang` 启动一个容器. 执行完命令后, 就在容器中开了一个 bash. 容器中的 `/root/wasm/` 就是我们的共享目录.(source目录需要提前创建)
+3. 使用命令 `docker run -it --name wasi-dev --network host --mount type=bind,source=/Users/bytedance/dev/wasm,target=/root/wasm/ wasmedge/wasmedge:ubuntu-build-clang` 启动一个容器. 执行完命令后, 就在容器中开了一个 bash. 容器中的 `/root/wasm/` 就是我们的共享目录.(source目录需要提前创建)
+
+   > 其中 --name 指定容器名称, --network host 表明和宿主机使用同一个网络空间 (方便下载包)
 
 4. 打开VSCode, 安装**Docker、Dev Containers、Remote-SSH**扩展,然后如图操作
 
