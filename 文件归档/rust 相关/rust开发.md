@@ -5,9 +5,9 @@ wasmedge-sdk 的仓库已经从 WasmEdge/WasmEdge 迁移到 WasmEdge/wasmedge-ru
 依赖写法如下. 其中 features 的指定, 可以去对应仓库根目录下的 Cargo.toml 文件找. standalone 意味着不需要提前安装 C API.
 
 ```toml
-[dependencies]
-# wasmedge-sdk = {git = "https://github.com/WasmEdge/wasmedge-rust-sdk", branch = "main", features = ["ffi", "standalone"]}
-
+# 两者选其一, ffi必须开启, 否则有些代码不编译
+wasmedge-sys = { version = "0.11.2", features = ["standalone", "ffi"]}
+wasmedge-sys = {git = "https://github.com/WasmEdge/wasmedge-rust-sdk", branch = "main", package = "wasmedge-sys", features = ["standalone", "ffi"]}
 ```
 
 ```toml
@@ -235,11 +235,33 @@ pub extern "C" fn plugin_hook() -> *const ffi::WasmEdge_PluginDescriptor {
 
    WasmEdge_ModuleInstanceContext 只是一个空结构体, 不占用任何空间. 只使用其指针来标识一个 ModuleInstance 结构. 正因为其是空结构体, 所以我们没办法直接使用其指针指向的结构. 因此, ffi 提供了一系列函数, 用于建立和操作 ModuleInstance. 这样的好处是封装性, 可以在不影响其他代码的情况下更改数据结构的内部实现. 缺点是用起来麻烦, 接口有严格限制.
 
+## 索引 ffi 中的代码
+
+因为已经找到了 wasmedge.rs 文件, 可以直接将其当作当前项目的模块, 然后使用别名 ffi, 删除原有的 ffi 即可. (注意, ffi 是 wasmedge-sys 的特性, 不是 sdk)
+
+将 wasmedge.rs 移动到 src 目录, 然后在 `src/lib.rs` 或 `src/main.rs` 中编写如下代码, 即可
+
+```rust
+mod wasmedge;
+use wasmedge as ffi;
+```
+
+值得注意的是, dependency 中需要开启 ffi, 否则有些方法不会被编译, 比如:
+
+```rust
+/// Returns the raw pointer to the inner `WasmEdge_PluginDescriptor`.
+#[cfg(feature = "ffi")]
+#[cfg_attr(docsrs, doc(cfg(feature = "ffi")))]
+pub fn as_raw_ptr(&self) -> *const ffi::WasmEdge_PluginDescriptor {
+    &self.inner
+}
+```
+
+
+
 ## TODO
 
 - 复习 rust, 先看懂 custom_wasi_module 里是如何定义一个 ModuleInstance 的
-
 - ~~或者 了解规范是什么, 自定义实现一个~~
-
-- ###### 如何使用 IDE 索引 ffi 中定义的结构体? (为了方便跳转代码, 也方便开发, 函数提示之类). 可以问下 Sam
+- ~~如何使用 IDE 索引 ffi 中定义的结构体? (为了方便跳转代码, 也方便开发, 函数提示之类). 可以问下 Sam~~
 
