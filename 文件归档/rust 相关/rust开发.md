@@ -47,7 +47,7 @@ wasmedge_sys::plugin::{PluginDescriptor, ModuleDescriptor, PluginVersion};
 
 SDK 中没有 Module Instance, ffi 过来的结构体只相当于一个类型, 没有方法. 对于一个实体, 可能需要调用多个相关的函数才能完成相应操作, 比如 Module Instance.
 
-![image-20230819150117005](../README.assets/image-20230819150117005.png)
+![image-20230819150117005](../../README.assets/image-20230819150117005.png)
 
 盲猜 ModuleInstance 对应 ModuleInstanceContext
 

@@ -106,6 +106,8 @@ wasmedge学习过程中的一些资料的分享，以及遇到的问题和相应
   
   <https://github.com/apepkuss/WasmEdge/blob/rust/feat-new-vm/bindings/rust/wasmedge-sys/src/instance/custom_wasi_module.rs>
 
-- WasmEdge Rust SDK 仓库
+- WasmEdge Rust SDK 仓库以及 crate
 
   <https://github.com/WasmEdge/wasmedge-rust-sdk/tree/main>
+  
+  <https://crates.io/crates/wasmedge-sdk>
