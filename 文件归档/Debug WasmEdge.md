@@ -391,14 +391,143 @@ Expect<FunctionInstance *> getFunc(uint32_t Idx) const noexcept {
   }
 ```
 
+### CallingFrame
+
+调用每个 Wasi Func 时, 都会根据 CallingFrame 获取 Memory Instance. CallingFrame 包含一个 Executor 和 ModInst, 后者表示一个模块实例.
+
+在调试过程中, 发现调用 Wasi Func 时所在的模块, 不是 Wasi Module, 而是输入的 AST Module
+
+```shell
+b WasmEdge::Runtime::CallingFrame::getMemoryByIndex(unsigned int) const
+	frame #0: 0x0000000101aaf4d4 libwasmedge.0.dylib`WasmEdge::Runtime::CallingFrame::getMemoryByIndex(this=0x000000016fe84b08, Index=0) const at callingframe.h:35:9
+	frame #1: 0x0000000101d9411c libwasmedge.0.dylib`WasmEdge::Host::WasiFdWrite::body(this=0x0000600002600a80, Frame=0x000000016fe84b08, Fd=1, IOVsPtr=1048184, IOVsLen=1, NWrittenPtr=1048172) at wasifunc.cpp:1024:25
+
+> p *Module 
+ModName = ""		# wasi 的模块名为 wasi_snapshot_preview1
+```
+
+### Executor
+
+VM:**unsafeExecute** 为什么要从 Export Func 里面去找需要执行的函数呢?
+
+VM:**unsafeExecute** 只会被调一次, fd write 函数是在 _start 函数里被调用的.
+
+**VM::unsafeExecute()** -> **Executor::invoke()** -> **Executor::execute()** -> **Executor::runCallOp()**
+
+```C++
+// Invoke function. See "include/executor/executor.h".
+Expect<std::vector<std::pair<ValVariant, ValType>>>
+Executor::invoke(const Runtime::Instance::FunctionInstance *FuncInst,
+                 Span<const ValVariant> Params,
+                 Span<const ValType> ParamTypes) {
+  // ...
+  
+  Runtime::StackManager StackMgr;
+
+  // Call runFunction.
+  if (auto Res = runFunction(StackMgr, *FuncInst, Params); !Res) {
+    return Unexpect(Res);
+  }
+
+  // Get return values.
+  std::vector<std::pair<ValVariant, ValType>> Returns(RTypes.size());
+  for (uint32_t I = 0; I < RTypes.size(); ++I) {
+    Returns[RTypes.size() - I - 1] =
+        std::make_pair(StackMgr.pop(), RTypes[RTypes.size() - I - 1]);
+  }
+
+  // After execution, the value stack size should be 0.
+  assuming(StackMgr.size() == 0);
+  return Returns;
+}
+```
+
+**Executor::execute()** 接受一个栈和两个迭代器参数.
+
+两个迭代器表示指令的起点和终点. InstrView 就是 Span 包了一个指令, 迭代器显然就是用于访问指令的指针.
+
+```cpp
+Expect<void> Executor::execute(Runtime::StackManager &StackMgr,
+                               const AST::InstrView::iterator Start,
+                               const AST::InstrView::iterator End) {
+    AST::InstrView::iterator PC = Start;
+  	AST::InstrView::iterator PCEnd = End;
+    while (PC != PCEnd) {
+      if (Stat) { /*统计信息*/}
+      if (auto Res = Dispatch(); !Res) {
+        return Unexpect(Res);
+      }
+      PC++;
+  	}
+}
+// Type aliasing
+using InstrVec = std::vector<Instruction>;
+using InstrView = Span<const Instruction>;
+```
+
+**Dispatch()** 是一个 Lambda 表达式, 会根据当前指令的指令码, 分派不同的底层指令执行.
+
+```cpp
+auto Dispatch = [this, &PC, &StackMgr]() -> Expect<void> {
+    const AST::Instruction &Instr = *PC;
+    switch (Instr.getOpCode()) {
+    // Control instructions.
+    case OpCode::Call:
+      return runCallOp(StackMgr, Instr, PC);
+    }
+}
+```
+
+**runCallOp()**
+
+```cpp
+Expect<void> Executor::runCallOp(Runtime::StackManager &StackMgr,
+                                 const AST::Instruction &Instr,
+                                 AST::InstrView::iterator &PC,
+                                 bool IsTailCall) noexcept {
+  // Get Function address.
+  const auto *ModInst = StackMgr.getModule();
+  const auto *FuncInst = *ModInst->getFunc(Instr.getTargetIndex());
+  if (auto Res = enterFunction(StackMgr, *FuncInst, PC + 1, IsTailCall); !Res) {
+    return Unexpect(Res);
+  } else {
+    PC = (*Res) - 1;
+  }
+  return {};
+}
+```
+
+**ModInst->getFunc()**
+
+```cpp
+/// Get instance pointer by index.
+Expect<FunctionInstance *> getFunc(uint32_t Idx) const noexcept {
+  std::shared_lock Lock(Mutex);
+  if (Idx >= FuncInsts.size()) {
+    // Error logging need to be handled in caller.
+    return Unexpect(ErrCode::Value::WrongInstanceIndex);
+  }
+  return FuncInsts[Idx];
+}
+```
+
+从 FuncInsts 变量来看, 里面包含了所有函数, 包括 host function, 在哪里体现这一点了? 如何看到 FuncInsts 里所有的函数?
+
+### StackManager
+
+包含两个栈, 一个调用栈, 一个参数栈
+
+**Executor**::**enterFunction()** 函数开头 push 调用帧, 函数结尾 pop 调用帧.
+
+调用帧中关键的元素是 Module Instance, 通过 Function Instance 的 **getModule()** 方法.
+
 
 
 ## ToDo
 
-1. 插件中的 Module 和 Built-In Module 有什么区别? 
-2. 需要继续探索的是: 插件实现 wasi 需要了解 Store Manager 的细节吗?
-
- 
+1. Module 中究竟包含什么, 各种 Instance 有哪些, 尤其是 Function Instance, Exported Function 和 Imported Function
+2. enterFunction 中对 host function 和 non host function 的区别处理是在做什么
+3. 整理关键的断点列表.
 
 
 
